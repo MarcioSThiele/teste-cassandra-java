@@ -1,1 +1,0 @@
-# teste-cassandra-java
