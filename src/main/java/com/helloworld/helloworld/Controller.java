@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import software.aws.mcs.auth.SigV4AuthProvider;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,11 +21,12 @@ public class Controller {
 
     @GetMapping("/hello")
     public String sendMessage() {
-        select();
-        return "Hello World!";
+        return select().toString();
     }
 
-    public void select(){
+    public List<Table> select(){
+        List<Table> list = new ArrayList<>();
+
         SigV4AuthProvider provider = new SigV4AuthProvider("sa-east-1");
 
         List<InetSocketAddress> contactPoints = Collections.singletonList(new InetSocketAddress("cassandra.sa-east-1.amazonaws.com", 9142));
@@ -39,6 +41,7 @@ public class Controller {
 
             for (Row row : rs) {
                 logger.info("TESTE -> " + row.getString("id") + " " + row.getString("name") + " " + row.getString("description"));
+                list.add(new Table(row.getString("id"), row.getString("name"), row.getString("description")));
             }
 
             System.out.println("Acabou!!!");
@@ -46,6 +49,9 @@ public class Controller {
         }catch (Exception e){
             logger.error(e.getMessage());
             logger.info(e.getMessage());
+            list.add(new Table("NADA", "NADA", "NADA"));
+        }finally {
+            return list;
         }
     }
 }
